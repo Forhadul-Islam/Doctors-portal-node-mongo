@@ -19,13 +19,34 @@ app.get('/', (req, res) => {
     res.send('hello world');
 })
 
-//appointments for dates
-app.post('/appointmentsForDate', (req, res) => {
-    const date = req.body;
-    console.log("date is ", req.body)
+
+//all appointments
+app.get('/appointments', (req, res) => {
+    const date = req.params.date;
+    console.log(date)
+    // res.send(date);
     client.connect(err => {
         const collection = client.db("doctorsPortal").collection("appointments");
         collection.find().toArray((error, documents) => {
+            if (error) {
+                console.log(error);
+                res.status(500).send({ message: error });
+            }
+            else {
+                console.log(documents)
+                res.send(documents);
+            }
+        })
+    })
+})
+//appointments for dates
+app.get('/appointments/:date', (req, res) => {
+    const date = req.params.date;
+    console.log(date)
+    // res.send(date);
+    client.connect(err => {
+        const collection = client.db("doctorsPortal").collection("appointments");
+        collection.find({ "appointment_information.date": date }).toArray((error, documents) => {
             if (error) {
                 console.log(error);
                 res.status(500).send({ message: error });
@@ -49,7 +70,7 @@ app.post('/appointments', (req, res) => {
                 console.log("faild to connect", error);
                 res.status(500).send({ message: error });
             } else {
-                console.log("connected successfully", result.ops[0]);
+                console.log("connected successfully");
                 res.send(result.ops[0]);
             }
         })
